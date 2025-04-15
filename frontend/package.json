@@ -2,7 +2,6 @@
   "name": "csr-generator-tool",
   "version": "0.1.0",
   "private": true,
-
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
@@ -44,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.51.1",
     "gh-pages": "^5.0.0"
   }
 }

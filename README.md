@@ -16,12 +16,12 @@ Managing Certificate Signing Requests (CSRs) across multiple environments and se
 - **Enhance Security**: Built-in validation ensures your CSRs follow best practices
 - **Flexible Deployment**: Easy to deploy and use
 
-## 🌟 Features
+## Features
 
 - **CSR Generation**: Create CSRs for different services and environments
 - **CSR Validation**: Validate existing CSRs for correctness
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Frontend**: React.js with Material-UI
 - **Backend**: Python (Flask)
@@ -29,14 +29,14 @@ Managing Certificate Signing Requests (CSRs) across multiple environments and se
   - Any static hosting for frontend
   - Any Python hosting for backend
 
-## 🚀 Running Locally
+## Running Locally
 
 To run the application locally, follow the instructions in the "Getting Started" section below. The application will be available at:
 
 - Frontend: [http://localhost:3001](http://localhost:3001)
 - Backend API: [http://localhost:8000](http://localhost:8000)
 
-## 💻 Use Cases
+## Use Cases
 
 ### For Security Teams
 
@@ -53,7 +53,7 @@ To run the application locally, follow the instructions in the "Getting Started"
 - Integrate CSR generation into CI/CD pipelines
 - Validate CSRs as part of your workflow
 
-## 📋 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -91,7 +91,7 @@ This will start both the frontend and backend servers. The frontend will be avai
 ./run_tests.sh
 ```
 
-## 📝 API Endpoints
+## API Endpoints
 
 Once the backend is running, you can access the following API endpoints:
 
@@ -99,7 +99,7 @@ Once the backend is running, you can access the following API endpoints:
 - Generate CSR: [http://localhost:8000/generate](http://localhost:8000/generate) (POST)
 - Validate CSR: [http://localhost:8000/validate](http://localhost:8000/validate) (POST)
 
-## 🚢 Deployment
+## Deployment
 
 You can deploy the application to any hosting service that supports React and Flask applications.
 
@@ -136,7 +136,7 @@ This will start both the frontend and backend servers:
    - Set the Build Output Directory to `frontend/build`
    - Set the Environment Variable `REACT_APP_API_URL` to your Render backend URL
 
-## 📖 Examples for Each Functionality
+## Examples for Each Functionality
 
 ### 1. CSR Generation
 
@@ -154,7 +154,7 @@ This will start both the frontend and backend servers:
 3. Click "Validate CSR"
 4. The validation results will show subject information, key size, and signature algorithm
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -164,11 +164,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 - [OpenSSL](https://www.openssl.org/)
 - [React](https://reactjs.org/)
