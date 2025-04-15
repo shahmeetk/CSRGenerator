@@ -22,11 +22,11 @@ import {
 const Generator = () => {
   const [formData, setFormData] = useState({
     commonName: '',
-    organization: '',
+    organization: 'Example Organization, Inc.',
     organizationalUnit: '',
     locality: '',
     state: '',
-    country: 'SA',
+    country: 'US',
     email: '',
     keySize: 2048,
     service: '',
@@ -74,18 +74,19 @@ const Generator = () => {
   const getSuggestedDomain = (service, environment) => {
     // This is a simplified version - in a real app, this would use AI
     const serviceDomains = {
-      'NI-3DS': 'paypage',
-      'NI-API': 'api-gateway',
-      'NI-3DS-CALLBACK': 'spg.internal',
-      'NI-MLE': 'portal',
+      'WEB': 'www',
+      'API': 'api',
+      'ADMIN': 'admin',
+      'PORTAL': 'portal',
+      'APP': 'app',
     };
 
     const baseDomain = serviceDomains[service] || service.toLowerCase();
 
     if (environment === 'PROD') {
-      return `${baseDomain}.ksa.ngenius-payments.com`;
+      return `${baseDomain}.example.com`;
     } else {
-      return `${baseDomain}.${environment.toLowerCase()}.ksa.ngenius-payments.com`;
+      return `${baseDomain}.${environment.toLowerCase()}.example.com`;
     }
   };
 
@@ -206,10 +207,11 @@ const Generator = () => {
                   onChange={handleChange}
                   required
                 >
-                  <MenuItem value="NI-3DS">NI-3DS</MenuItem>
-                  <MenuItem value="NI-API">NI-API</MenuItem>
-                  <MenuItem value="NI-3DS-CALLBACK">NI-3DS-CALLBACK</MenuItem>
-                  <MenuItem value="NI-MLE">NI-MLE</MenuItem>
+                  <MenuItem value="WEB">Web</MenuItem>
+                  <MenuItem value="API">API</MenuItem>
+                  <MenuItem value="ADMIN">Admin</MenuItem>
+                  <MenuItem value="PORTAL">Portal</MenuItem>
+                  <MenuItem value="APP">App</MenuItem>
                   <MenuItem value="CUSTOM">Custom</MenuItem>
                 </Select>
               </FormControl>
