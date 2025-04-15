@@ -30,7 +30,7 @@ echo "Starting frontend server..."
 (
     cd frontend || { echo "Error: Could not change to frontend directory"; exit 1; }
     npm install
-    npm start &
+    PORT=3001 npm start &
     FRONTEND_PID=$!
     echo "Frontend PID: $FRONTEND_PID"
 )
@@ -49,7 +49,7 @@ trap cleanup SIGINT SIGTERM
 
 echo ""
 echo "Application is running:"
-echo "- Frontend: http://localhost:3000"
+echo "- Frontend: http://localhost:3001"
 echo "- Backend API: http://localhost:8000"
 echo "- API Documentation: http://localhost:8000/docs"
 echo ""

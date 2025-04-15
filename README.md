@@ -1,6 +1,6 @@
 # CSR Generator Tool
 
-A Certificate Signing Request (CSR) management tool for security professionals, system administrators, and DevOps engineers.
+A Certificate Signing Request (CSR) management tool for security professionals, system administrators, and DevOps engineers. This tool simplifies the process of generating and validating CSRs for SSL certificates.
 
 ![CSR Generator Tool](https://img.shields.io/badge/CSR%20Generator-Tool-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -31,7 +31,10 @@ Managing Certificate Signing Requests (CSRs) across multiple environments and se
 
 ## 🚀 Running Locally
 
-To run the application locally, follow the instructions in the "Getting Started" section below.
+To run the application locally, follow the instructions in the "Getting Started" section below. The application will be available at:
+
+- Frontend: [http://localhost:3001](http://localhost:3001)
+- Backend API: [http://localhost:8000](http://localhost:8000)
 
 ## 💻 Use Cases
 
@@ -80,7 +83,7 @@ chmod +x run_local.sh run_tests.sh
 ./run_local.sh
 ```
 
-This will start both the frontend and backend servers.
+This will start both the frontend and backend servers. The frontend will be available at [http://localhost:3001](http://localhost:3001) and the backend at [http://localhost:8000](http://localhost:8000).
 
 **Step 4:** Run the tests:
 
@@ -113,8 +116,25 @@ cd CSRGenerator
 
 This will start both the frontend and backend servers:
 
-- Frontend: [http://localhost:3000](http://localhost:3000)
+- Frontend: [http://localhost:3001](http://localhost:3001)
 - Backend: [http://localhost:8000](http://localhost:8000)
+
+### Option 2: Deploy to Render and Cloudflare
+
+1. Deploy the backend to Render:
+   - Create a new Web Service on Render
+   - Connect your GitHub repository
+   - Set the Root Directory to `backend`
+   - Set the Build Command to `pip install -r requirements.txt`
+   - Set the Start Command to `python main.py`
+   - Select the Free plan
+
+2. Deploy the frontend to Cloudflare Pages:
+   - Create a new Pages project on Cloudflare
+   - Connect your GitHub repository
+   - Set the Build Command to `cd frontend && npm install && npm run build`
+   - Set the Build Output Directory to `frontend/build`
+   - Set the Environment Variable `REACT_APP_API_URL` to your Render backend URL
 
 ## 📖 Examples for Each Functionality
 
