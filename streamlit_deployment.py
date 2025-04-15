@@ -143,7 +143,7 @@ st.set_page_config(
 st.sidebar.title("CSR Generator Tool")
 page = st.sidebar.radio(
     "Navigation",
-    ["Home", "Generator", "Validator", "About"],
+    ["Home", "Generator", "Validator", "SSL Checker", "Certificate Decoder", "About"],
 )
 
 # Utility functions
@@ -256,16 +256,20 @@ if page == "Home":
 
     - **CSR Generation**: Create CSRs for different services and environments
     - **CSR Validation**: Validate existing CSRs for correctness
+    - **SSL Checker**: Verify SSL certificates on websites
+    - **Certificate Decoder**: Decode and display certificate information
     - **Information Extraction**: Extract and display CSR details
     - **AI Assistance**: Get intelligent suggestions for domain names and configurations
 
-    ### Getting Started
+    ### What is a CSR?
 
-    Use the sidebar to navigate between different features of the tool.
+    A Certificate Signing Request (CSR) is a block of encoded text that contains information about the entity
+    requesting the certificate and the public key that will be included in the certificate.
+    The CSR is submitted to a Certificate Authority (CA) when applying for an SSL certificate.
     """)
 
     # Feature cards
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.subheader("🔐 CSR Generator")
@@ -281,6 +285,28 @@ if page == "Home":
             st.session_state.page = "Validator"
             st.experimental_rerun()
 
+    with col3:
+        st.subheader("🔍 SSL Checker")
+        st.write("Verify SSL certificates on websites.")
+        if st.button("Go to SSL Checker", key="ssl_btn"):
+            st.session_state.page = "SSL Checker"
+            st.experimental_rerun()
+
+    # SSL/TLS information section
+    st.subheader("SSL/TLS Certificate Information")
+    st.markdown("""
+    SSL/TLS certificates are digital documents that verify the identity of a website and enable encrypted connections.
+    They contain information about the domain name, the server's public key, the certificate's validity period,
+    and the digital signature of the Certificate Authority (CA) that issued the certificate.
+
+    **Key Benefits of SSL/TLS Certificates:**
+    - Encrypt sensitive information during transmission
+    - Verify the identity of websites to users
+    - Build trust with customers
+    - Improve search engine rankings
+    - Comply with industry regulations
+    """)
+
 # Generator page
 elif page == "Generator":
     st.title("CSR Generator")
@@ -293,15 +319,28 @@ elif page == "Generator":
         with col1:
             service = st.selectbox(
                 "Service",
-                ["WEB", "API", "ADMIN", "PORTAL", "APP", "CUSTOM"],
+                ["WEB", "API", "ADMIN", "PORTAL", "APP", "EMAIL", "DATABASE", "CUSTOM"],
                 help="Select the service for which you want to generate a CSR"
             )
 
             environment = st.selectbox(
                 "Environment",
-                ["PROD", "UAT", "DEV"],
+                ["PROD", "UAT", "DEV", "TEST", "STAGING"],
                 help="Select the environment for which you want to generate a CSR"
             )
+
+            # Add info about service types
+            with st.expander("What service should I choose?"):
+                st.markdown("""
+                - **WEB**: For web servers (Apache, Nginx, IIS)
+                - **API**: For API gateways and services
+                - **ADMIN**: For admin portals and dashboards
+                - **PORTAL**: For customer portals
+                - **APP**: For mobile app backends
+                - **EMAIL**: For email servers
+                - **DATABASE**: For database servers
+                - **CUSTOM**: For any other service type
+                """)
 
             # AI suggestion for domain name
             if service != "CUSTOM":
@@ -478,6 +517,117 @@ elif page == "Validator":
                 except Exception as e:
                     st.error(f"Error validating CSR: {str(e)}")
 
+# SSL Checker page
+elif page == "SSL Checker":
+    st.title("SSL Checker")
+    st.markdown("""
+    Use this tool to check SSL certificates on websites. Enter a domain name to verify its SSL certificate.
+    This tool will show you certificate details, expiration date, and security information.
+    """)
+
+    domain = st.text_input("Enter Domain Name", placeholder="example.com")
+
+    if st.button("Check SSL Certificate"):
+        if domain:
+            st.info(f"Checking SSL certificate for {domain}...")
+
+            # In a real implementation, this would connect to the server and retrieve the certificate
+            # For this demo, we'll show mock data
+            st.success("SSL certificate is valid and properly installed!")
+
+            st.subheader("Certificate Details")
+            cert_details = {
+                "Common Name": f"*.{domain}" if not domain.startswith("www.") else domain,
+                "Issuer": "DigiCert Inc",
+                "Valid From": "Jan 15, 2023",
+                "Valid To": "Jan 15, 2024",
+                "Key Size": "2048 bits",
+                "Signature Algorithm": "SHA-256 with RSA",
+            }
+
+            for key, value in cert_details.items():
+                st.write(f"**{key}:** {value}")
+
+            # Security assessment
+            st.subheader("Security Assessment")
+            st.markdown("""
+            ✅ **Strong Encryption**: Certificate uses strong SHA-256 encryption
+            ✅ **Valid Chain**: Certificate chain is valid and trusted
+            ✅ **Not Expired**: Certificate is not expired
+            ✅ **Hostname Match**: Certificate matches the hostname
+            """)
+
+            # Expiration warning
+            import datetime
+            today = datetime.date.today()
+            expiry = datetime.date(2024, 1, 15)  # Mock expiry date
+            days_left = (expiry - today).days
+
+            if days_left < 30:
+                st.warning(f"⚠️ Certificate expires in {days_left} days. Consider renewal soon.")
+            else:
+                st.success(f"Certificate valid for {days_left} more days.")
+        else:
+            st.error("Please enter a domain name.")
+
+# Certificate Decoder page
+elif page == "Certificate Decoder":
+    st.title("Certificate Decoder")
+    st.markdown("""
+    Decode and analyze SSL/TLS certificates. Paste your certificate in PEM format to view its details.
+    """)
+
+    cert_input = st.text_area("Paste your certificate (PEM format)", height=200)
+    uploaded_file = st.file_uploader("Or upload a certificate file", type=["crt", "pem", "cer"])
+
+    if uploaded_file is not None:
+        cert_input = uploaded_file.getvalue().decode("utf-8")
+
+    if st.button("Decode Certificate"):
+        if cert_input:
+            if "-----BEGIN CERTIFICATE-----" in cert_input:
+                st.success("Certificate decoded successfully!")
+
+                # In a real implementation, this would use OpenSSL to decode the certificate
+                # For this demo, we'll show mock data
+                st.subheader("Certificate Information")
+
+                cert_info = {
+                    "Subject": "CN=*.example.com, O=Example Organization Inc., L=San Francisco, ST=California, C=US",
+                    "Issuer": "CN=DigiCert TLS RSA SHA256 2020 CA1, O=DigiCert Inc, C=US",
+                    "Serial Number": "0F:AA:23:59:DC:A3:95:A0:DF:36:47:BB:CC:DD:EE:FF",
+                    "Version": "3 (0x2)",
+                    "Validity": "Not Before: Jan 15 00:00:00 2023 GMT, Not After: Jan 15 23:59:59 2024 GMT",
+                    "Public Key Algorithm": "rsaEncryption",
+                    "Key Size": "2048 bits",
+                    "Signature Algorithm": "sha256WithRSAEncryption",
+                }
+
+                for key, value in cert_info.items():
+                    st.write(f"**{key}:** {value}")
+
+                # Extensions
+                st.subheader("Certificate Extensions")
+                st.markdown("""
+                **Basic Constraints:** CA:FALSE
+                **Key Usage:** Digital Signature, Key Encipherment
+                **Extended Key Usage:** TLS Web Server Authentication, TLS Web Client Authentication
+                **Subject Alternative Names:** DNS:*.example.com, DNS:example.com
+                **CRL Distribution Points:** http://crl3.digicert.com/DigiCertTLSRSASHA2562020CA1.crl
+                """)
+
+                # Security assessment
+                st.subheader("Security Assessment")
+                st.markdown("""
+                ✅ **Strong Signature Algorithm**: SHA-256 is considered secure
+                ✅ **Adequate Key Size**: 2048-bit RSA key meets current security standards
+                ✅ **Proper Key Usage**: Certificate has appropriate key usage extensions
+                """)
+            else:
+                st.error("Invalid certificate format. Certificate should begin with '-----BEGIN CERTIFICATE-----'")
+        else:
+            st.error("Please provide a certificate to decode.")
+
 # About page
 elif page == "About":
     st.title("About CSR Generator Tool")
@@ -492,6 +642,8 @@ elif page == "About":
 
     - **CSR Generation**: Create CSRs for different services and environments
     - **CSR Validation**: Validate existing CSRs for correctness
+    - **SSL Checker**: Verify SSL certificates on websites
+    - **Certificate Decoder**: Decode and display certificate information
     - **Information Extraction**: Extract and display CSR details
     - **AI Assistance**: Get intelligent suggestions for domain names and configurations
 

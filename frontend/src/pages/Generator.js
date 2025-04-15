@@ -14,10 +14,25 @@ import {
   Box,
   Divider,
   Alert,
+  AlertTitle,
   Snackbar,
   FormHelperText,
   CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  Card,
+  CardContent,
+  Tooltip,
+  IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Generator = () => {
   const [formData, setFormData] = useState({
@@ -111,53 +126,83 @@ const Generator = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setResult({ ...result, loading: true, error: null });
 
-    try {
-      // Prepare data for API call
-      const csrData = {
-        common_name: formData.commonName,
-        organization: formData.organization,
-        organizational_unit: formData.organizationalUnit,
-        locality: formData.locality,
-        state: formData.state,
-        country: formData.country,
-        email: formData.email,
-        key_size: formData.keySize,
-        service: formData.service,
-        environment: formData.environment
-      };
+    // If we're on the last step, just finish
+    if (activeStep === steps.length - 1) {
+      handleReset();
+      return;
+    }
 
-      // Call the API to generate CSR
-      const response = await apiService.generateCSR(csrData);
+    // If we're on step 0, validate and move to step 1
+    if (activeStep === 0) {
+      // Basic validation
+      if (!formData.commonName || !formData.organization || !formData.country || !formData.service || !formData.environment) {
+        setSnackbar({
+          open: true,
+          message: 'Please fill in all required fields',
+          severity: 'error',
+        });
+        return;
+      }
 
-      setResult({
-        csr: response.csr,
-        privateKey: response.private_key,
-        loading: false,
-        error: null,
-        success: true,
-      });
+      // Move to step 1
+      handleNext();
+      return;
+    }
 
-      setSnackbar({
-        open: true,
-        message: 'CSR generated successfully!',
-        severity: 'success',
-      });
-    } catch (error) {
-      console.error('Error generating CSR:', error);
-      setResult({
-        ...result,
-        loading: false,
-        error: error.response?.data?.error || 'Error generating CSR. Please try again.',
-        success: false,
-      });
+    // If we're on step 1, generate the CSR
+    if (activeStep === 1) {
+      setResult({ ...result, loading: true, error: null });
 
-      setSnackbar({
-        open: true,
-        message: 'Error generating CSR',
-        severity: 'error',
-      });
+      try {
+        // Prepare data for API call
+        const csrData = {
+          common_name: formData.commonName,
+          organization: formData.organization,
+          organizational_unit: formData.organizationalUnit,
+          locality: formData.locality,
+          state: formData.state,
+          country: formData.country,
+          email: formData.email,
+          key_size: formData.keySize,
+          service: formData.service,
+          environment: formData.environment
+        };
+
+        // Call the API to generate CSR
+        const response = await apiService.generateCSR(csrData);
+
+        setResult({
+          csr: response.csr,
+          privateKey: response.private_key,
+          loading: false,
+          error: null,
+          success: true,
+        });
+
+        setSnackbar({
+          open: true,
+          message: 'CSR generated successfully!',
+          severity: 'success',
+        });
+
+        // Move to step 2
+        handleNext();
+      } catch (error) {
+        console.error('Error generating CSR:', error);
+        setResult({
+          ...result,
+          loading: false,
+          error: error.response?.data?.error || 'Error generating CSR. Please try again.',
+          success: false,
+        });
+
+        setSnackbar({
+          open: true,
+          message: 'Error generating CSR',
+          severity: 'error',
+        });
+      }
     }
   };
 
@@ -183,6 +228,41 @@ const Generator = () => {
     });
   };
 
+  // Steps for the stepper
+  const steps = ['Enter Certificate Details', 'Generate CSR', 'Download & Next Steps'];
+  const [activeStep, setActiveStep] = useState(0);
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleReset = () => {
+    setActiveStep(0);
+    setFormData({
+      commonName: '',
+      organization: 'Example Organization, Inc.',
+      organizationalUnit: '',
+      locality: '',
+      state: '',
+      country: 'US',
+      email: '',
+      keySize: 2048,
+      service: '',
+      environment: 'PROD',
+    });
+    setResult({
+      csr: '',
+      privateKey: '',
+      loading: false,
+      error: null,
+      success: false,
+    });
+  };
+
   return (
     <Container className="page-content">
       <Typography variant="h4" component="h1" gutterBottom>
@@ -190,7 +270,25 @@ const Generator = () => {
       </Typography>
       <Typography variant="body1" paragraph>
         Generate Certificate Signing Requests (CSRs) for your services. Fill out the form below to create a new CSR.
+        Our tool helps you create properly formatted CSRs that can be submitted to any Certificate Authority.
       </Typography>
+
+      <Box sx={{ mb: 3 }}>
+        <Alert severity="info">
+          <AlertTitle>What is a CSR?</AlertTitle>
+          A Certificate Signing Request (CSR) is a block of encoded text that contains information about the entity
+          requesting the certificate and the public key that will be included in the certificate.
+          The CSR is submitted to a Certificate Authority (CA) when applying for an SSL certificate.
+        </Alert>
+      </Box>
+
+      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
 
       <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
         <form onSubmit={handleSubmit}>
@@ -207,12 +305,14 @@ const Generator = () => {
                   onChange={handleChange}
                   required
                 >
-                  <MenuItem value="WEB">Web</MenuItem>
-                  <MenuItem value="API">API</MenuItem>
-                  <MenuItem value="ADMIN">Admin</MenuItem>
-                  <MenuItem value="PORTAL">Portal</MenuItem>
-                  <MenuItem value="APP">App</MenuItem>
-                  <MenuItem value="CUSTOM">Custom</MenuItem>
+                  <MenuItem value="WEB">Web Server</MenuItem>
+                  <MenuItem value="API">API Gateway</MenuItem>
+                  <MenuItem value="ADMIN">Admin Portal</MenuItem>
+                  <MenuItem value="PORTAL">Customer Portal</MenuItem>
+                  <MenuItem value="APP">Mobile App</MenuItem>
+                  <MenuItem value="EMAIL">Email Server</MenuItem>
+                  <MenuItem value="DATABASE">Database Server</MenuItem>
+                  <MenuItem value="CUSTOM">Custom Service</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -340,15 +440,22 @@ const Generator = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                >
+                  Back
+                </Button>
                 <Button
                   type="submit"
                   variant="contained"
                   color="primary"
                   disabled={result.loading}
-                  sx={{ mt: 2 }}
                 >
-                  {result.loading ? <CircularProgress size={24} /> : 'Generate CSR'}
+                  {result.loading ? <CircularProgress size={24} /> : activeStep === steps.length - 1 ? 'Finish' : 'Generate CSR'}
                 </Button>
               </Box>
             </Grid>
@@ -367,15 +474,44 @@ const Generator = () => {
           <Typography variant="h5" gutterBottom>
             Generated CSR
           </Typography>
-          <Box className="code-block" sx={{ mb: 3 }}>
-            <pre>{result.csr}</pre>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              This is your Certificate Signing Request (CSR) that you'll submit to a Certificate Authority.
+            </Typography>
+            <Tooltip title="The CSR contains your public key and organization information. It does not contain your private key.">
+              <IconButton size="small">
+                <InfoIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+          <Box className="code-block" sx={{ mb: 3, position: 'relative', bgcolor: '#f5f5f5', p: 2, borderRadius: 1 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{result.csr}</pre>
+            <IconButton
+              sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.7)' }}
+              onClick={() => copyToClipboard(result.csr, 'CSR')}
+              size="small"
+              aria-label="copy CSR"
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
           </Box>
           <Button
             variant="outlined"
             onClick={() => copyToClipboard(result.csr, 'CSR')}
             sx={{ mb: 3 }}
+            startIcon={<ContentCopyIcon />}
           >
             Copy CSR
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            sx={{ mb: 3, ml: 2 }}
+            component="a"
+            href={`data:application/text;charset=utf-8,${encodeURIComponent(result.csr)}`}
+            download="certificate-signing-request.csr"
+          >
+            Download CSR
           </Button>
 
           <Divider sx={{ my: 3 }} />
@@ -384,17 +520,36 @@ const Generator = () => {
             Private Key
           </Typography>
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Keep your private key secure! Never share it with anyone.
+            Keep your private key secure! Never share it with anyone. Store it safely as you'll need it when installing your certificate.
           </Alert>
-          <Box className="code-block" sx={{ mb: 3 }}>
-            <pre>{result.privateKey}</pre>
+          <Box className="code-block" sx={{ mb: 3, position: 'relative', bgcolor: '#f5f5f5', p: 2, borderRadius: 1 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{result.privateKey}</pre>
+            <IconButton
+              sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.7)' }}
+              onClick={() => copyToClipboard(result.privateKey, 'Private Key')}
+              size="small"
+              aria-label="copy private key"
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
           </Box>
           <Button
             variant="outlined"
             onClick={() => copyToClipboard(result.privateKey, 'Private Key')}
             sx={{ mb: 3 }}
+            startIcon={<ContentCopyIcon />}
           >
             Copy Private Key
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            sx={{ mb: 3, ml: 2 }}
+            component="a"
+            href={`data:application/text;charset=utf-8,${encodeURIComponent(result.privateKey)}`}
+            download="private-key.key"
+          >
+            Download Private Key
           </Button>
 
           <Divider sx={{ my: 3 }} />
@@ -402,15 +557,58 @@ const Generator = () => {
           <Typography variant="h5" gutterBottom>
             Next Steps
           </Typography>
-          <Typography variant="body1" paragraph>
-            1. Save both the CSR and private key to secure files.
-          </Typography>
-          <Typography variant="body1" paragraph>
-            2. Submit the CSR to your Certificate Authority (CA) to obtain an SSL certificate.
-          </Typography>
-          <Typography variant="body1" paragraph>
-            3. Once you receive your certificate, you'll need the private key for installation.
-          </Typography>
+
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">What to do with your CSR and Private Key</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={4}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>Step 1</Typography>
+                      <Typography variant="body2">
+                        Save both the CSR and private key to secure files. Your private key should be kept confidential.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>Step 2</Typography>
+                      <Typography variant="body2">
+                        Submit the CSR to your Certificate Authority (CA) to obtain an SSL certificate.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>Step 3</Typography>
+                      <Typography variant="body2">
+                        Once you receive your certificate, you'll need the private key for installation on your server.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
+
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+            <Button variant="outlined" onClick={handleReset}>Create Another CSR</Button>
+            <Button
+              variant="contained"
+              color="primary"
+              component="a"
+              href="/validator"
+            >
+              Validate a CSR
+            </Button>
+          </Box>
         </Paper>
       )}
 
