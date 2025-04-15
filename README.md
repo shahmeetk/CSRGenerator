@@ -36,9 +36,11 @@ Managing Certificate Signing Requests (CSRs) across multiple environments and se
 
 - **Frontend**: React.js with Material-UI
 - **Backend**: JavaScript (Cloudflare Workers)
+- **Alternative**: Streamlit Python app (all-in-one solution)
 - **Hosting Options**:
   - GitHub Pages for frontend (completely free)
   - Cloudflare Workers for backend (free tier with generous limits)
+  - Streamlit Community Cloud for the Streamlit app (completely free)
 
 ## Running Locally
 
@@ -175,6 +177,20 @@ This will start both the frontend and backend servers:
    ```
 
    - Redeploy the frontend with `npm run deploy`
+
+### Option 3: Deploy to Streamlit Community Cloud (Completely Free)
+
+Streamlit Community Cloud offers free hosting without requiring payment details:
+
+1. Create an account on [Streamlit Community Cloud](https://streamlit.io/cloud)
+
+2. Connect your GitHub repository
+
+3. Select the `streamlit_deployment.py` file as the main file
+
+4. Deploy the app
+
+This will deploy the Streamlit app to `https://yourusername-csrgenerator.streamlit.app`
 
 ## Examples for Each Functionality
 
