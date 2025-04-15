@@ -2,6 +2,17 @@
 
 A Certificate Signing Request (CSR) management tool for security professionals, system administrators, and DevOps engineers. This tool simplifies the process of generating and validating CSRs for SSL certificates.
 
+## 💡 Project Idea
+
+The CSR Generator Tool was created to address the challenges faced by security teams and system administrators when managing SSL certificates across multiple environments. The tool provides an intuitive interface for generating and validating Certificate Signing Requests (CSRs), which are essential for obtaining SSL certificates from Certificate Authorities (CAs).
+
+Key problems it solves:
+
+- Eliminates manual errors in CSR generation
+- Provides domain name suggestions based on service and environment
+- Validates CSRs against security best practices
+- Offers a consistent workflow across different environments
+
 ![CSR Generator Tool](https://img.shields.io/badge/CSR%20Generator-Tool-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![React](https://img.shields.io/badge/React-18.2.0-blue)
@@ -24,10 +35,10 @@ Managing Certificate Signing Requests (CSRs) across multiple environments and se
 ## Technology Stack
 
 - **Frontend**: React.js with Material-UI
-- **Backend**: Python (Flask)
+- **Backend**: JavaScript (Cloudflare Workers)
 - **Hosting Options**:
-  - Any static hosting for frontend
-  - Any Python hosting for backend
+  - GitHub Pages for frontend (completely free)
+  - Cloudflare Workers for backend (free tier with generous limits)
 
 ## Running Locally
 
@@ -101,40 +112,69 @@ Once the backend is running, you can access the following API endpoints:
 
 ## Deployment
 
-You can deploy the application to any hosting service that supports React and Flask applications.
+The application is deployed using completely free hosting options that don't require payment details:
 
 ### Option 1: Run Locally
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/CSRGenerator.git
+git clone https://github.com/shahmeetk/CSRGenerator.git
 cd CSRGenerator
 
-# Run the local development script
-./run_local.sh
+# Run the frontend
+cd frontend
+npm install
+npm start
+
+# In a separate terminal, run the backend
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
 ```
 
 This will start both the frontend and backend servers:
 
-- Frontend: [http://localhost:3001](http://localhost:3001)
+- Frontend: [http://localhost:3000](http://localhost:3000)
 - Backend: [http://localhost:8000](http://localhost:8000)
 
-### Option 2: Deploy to Render and Cloudflare
+### Option 2: Deploy to GitHub Pages and Cloudflare Workers (Free Hosting)
 
-1. Deploy the backend to Render:
-   - Create a new Web Service on Render
-   - Connect your GitHub repository
-   - Set the Root Directory to `backend`
-   - Set the Build Command to `pip install -r requirements.txt`
-   - Set the Start Command to `python main.py`
-   - Select the Free plan
+1. Deploy the frontend to GitHub Pages:
 
-2. Deploy the frontend to Cloudflare Pages:
-   - Create a new Pages project on Cloudflare
-   - Connect your GitHub repository
-   - Set the Build Command to `cd frontend && npm install && npm run build`
-   - Set the Build Output Directory to `frontend/build`
-   - Set the Environment Variable `REACT_APP_API_URL` to your Render backend URL
+   ```bash
+   cd frontend
+   npm install
+   npm run deploy
+   ```
+
+   This will deploy the frontend to `https://yourusername.github.io/CSRGenerator`
+
+2. Deploy the backend to Cloudflare Workers:
+
+   ```bash
+   # Install Wrangler CLI if you haven't already
+   npm install -g wrangler
+
+   # Login to Cloudflare
+   wrangler login
+
+   # Deploy the worker
+   cd cloudflare-worker
+   wrangler publish
+   ```
+
+   This will deploy the backend to `https://csr-generator-api.yourusername.workers.dev`
+
+3. Update the API URL in the frontend:
+   - Create a `.env` file in the frontend directory with:
+
+   ```env
+   REACT_APP_API_URL=https://csr-generator-api.yourusername.workers.dev
+   ```
+
+   - Redeploy the frontend with `npm run deploy`
 
 ## Examples for Each Functionality
 

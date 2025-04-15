@@ -1,0 +1,6 @@
+name = "csr-generator-api"
+main = "worker.js"
+compatibility_date = "2023-05-15"
+
+[vars]
+ALLOWED_ORIGINS = "https://shahmeetk.github.io"

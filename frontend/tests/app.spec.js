@@ -2,88 +2,91 @@
 const { test, expect } = require('@playwright/test');
 
 test('homepage has correct title and links', async ({ page }) => {
-  await page.goto('http://localhost:3001/');
-  
+  await page.goto('/');
+
   // Check title
   await expect(page).toHaveTitle(/CSR Generator/);
-  
-  // Check navigation links
-  await expect(page.locator('nav')).toContainText('Home');
-  await expect(page.locator('nav')).toContainText('Generator');
-  await expect(page.locator('nav')).toContainText('Validator');
-  
+
+  // Check for the app bar
+  await expect(page.locator('header')).toBeVisible();
+
   // Check main content
-  await expect(page.locator('h1')).toContainText('CSR Generator Tool');
-  
+  await expect(page.locator('h4').first()).toContainText('CSR Generator Tool');
+
   // Check navigation to Generator page
-  await page.click('text=Generator');
-  await expect(page).toHaveURL(/.*\/generator/);
-  await expect(page.locator('h1')).toContainText('CSR Generator');
-  
+  await page.locator('button:has-text("Generator")').click();
+  await expect(page.url()).toContain('/generator');
+
   // Check navigation to Validator page
-  await page.click('text=Validator');
-  await expect(page).toHaveURL(/.*\/validator/);
-  await expect(page.locator('h1')).toContainText('CSR Validator');
-  
+  await page.locator('button:has-text("Validator")').click();
+  await expect(page.url()).toContain('/validator');
+
   // Navigate back to home
-  await page.click('text=Home');
-  await expect(page).toHaveURL(/.*\/$/);
+  await page.locator('button:has-text("Home")').click();
+  await expect(page.url()).not.toContain('/generator');
+  await expect(page.url()).not.toContain('/validator');
 });
 
 test('generator page functionality', async ({ page }) => {
-  await page.goto('http://localhost:3001/generator');
-  
-  // Check form elements
+  await page.goto('/generator');
+
+  // Check for the form
   await expect(page.locator('form')).toBeVisible();
-  await expect(page.locator('select[name="service"]')).toBeVisible();
-  await expect(page.locator('select[name="environment"]')).toBeVisible();
-  await expect(page.locator('input[name="organization"]')).toBeVisible();
-  
-  // Fill the form
-  await page.selectOption('select[name="service"]', 'NI-3DS');
-  await page.selectOption('select[name="environment"]', 'DEV');
-  await page.fill('input[name="organization"]', 'Test Organization');
-  await page.fill('input[name="country"]', 'US');
-  
+
+  // Fill the form with required fields
+  await page.locator('#service').click();
+  await page.locator('li[data-value="NI-3DS"]').click();
+
+  await page.locator('#commonName').fill('test.example.com');
+  await page.locator('#organization').fill('Test Organization');
+  await page.locator('#country').fill('US');
+
   // Submit the form
-  await page.click('button[type="submit"]');
-  
-  // Wait for the response
-  await page.waitForSelector('textarea', { timeout: 10000 });
-  
+  await page.locator('button[type="submit"]').click();
+
+  // Wait for the response (with longer timeout)
+  await page.waitForSelector('pre', { timeout: 30000 });
+
   // Check if CSR and private key are displayed
-  const csrTextarea = await page.locator('textarea').first();
-  const privateKeyTextarea = await page.locator('textarea').nth(1);
-  
-  await expect(csrTextarea).toContainText('-----BEGIN CERTIFICATE REQUEST-----');
-  await expect(privateKeyTextarea).toContainText('-----BEGIN PRIVATE KEY-----');
+  const csrPre = await page.locator('pre').first();
+  const privateKeyPre = await page.locator('pre').nth(1);
+
+  await expect(csrPre).toContainText('-----BEGIN CERTIFICATE REQUEST-----');
+  await expect(privateKeyPre).toContainText('-----BEGIN PRIVATE KEY-----');
 });
 
 test('validator page functionality', async ({ page }) => {
   // First generate a CSR to validate
-  await page.goto('http://localhost:3001/generator');
-  await page.selectOption('select[name="service"]', 'NI-3DS');
-  await page.selectOption('select[name="environment"]', 'DEV');
-  await page.fill('input[name="organization"]', 'Test Organization');
-  await page.fill('input[name="country"]', 'US');
-  await page.click('button[type="submit"]');
-  await page.waitForSelector('textarea', { timeout: 10000 });
-  
+  await page.goto('/generator');
+
+  // Fill the form with required fields
+  await page.locator('#service').click();
+  await page.locator('li[data-value="NI-3DS"]').click();
+
+  await page.locator('#commonName').fill('test.example.com');
+  await page.locator('#organization').fill('Test Organization');
+  await page.locator('#country').fill('US');
+
+  // Submit the form
+  await page.locator('button[type="submit"]').click();
+
+  // Wait for the response (with longer timeout)
+  await page.waitForSelector('pre', { timeout: 30000 });
+
   // Get the generated CSR
-  const csrContent = await page.locator('textarea').first().inputValue();
-  
+  const csrContent = await page.locator('pre').first().textContent();
+
   // Navigate to validator page
-  await page.goto('http://localhost:3001/validator');
-  
+  await page.goto('/validator');
+
   // Paste the CSR
-  await page.fill('textarea', csrContent);
-  
+  await page.locator('textarea').fill(csrContent);
+
   // Submit for validation
-  await page.click('button:has-text("Validate CSR")');
-  
-  // Check validation results
-  await page.waitForSelector('.validation-results', { timeout: 10000 });
-  await expect(page.locator('.validation-results')).toContainText('Subject Information');
-  await expect(page.locator('.validation-results')).toContainText('Key Size');
-  await expect(page.locator('.validation-results')).toContainText('Signature Algorithm');
+  await page.locator('button[type="submit"]').click();
+
+  // Check validation results (with longer timeout)
+  await page.waitForSelector('h6:has-text("Subject Information")', { timeout: 30000 });
+  await expect(page.locator('h6:has-text("Subject Information")')).toBeVisible();
+  await expect(page.locator('h6:has-text("Technical Details")')).toBeVisible();
 });

@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// API base URL - use environment variable or default to localhost
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// API base URL - use environment variable or default to Cloudflare Worker
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://csr-generator-api.yourusername.workers.dev';
+
+// For local development, you can use:
+// const API_BASE_URL = 'http://localhost:8000';
 
 console.log('API_BASE_URL:', API_BASE_URL);
 

@@ -2,12 +2,19 @@
 
 # Run the Streamlit app locally
 
-# Check if streamlit is installed
-if ! command -v streamlit &> /dev/null; then
-    echo "Streamlit is not installed. Installing now..."
-    pip install -r streamlit_requirements.txt
+# Create a virtual environment if it doesn't exist
+if [ ! -d "streamlit_env" ]; then
+    echo "Creating virtual environment..."
+    python -m venv streamlit_env
 fi
+
+# Activate the virtual environment
+source streamlit_env/bin/activate
+
+# Install requirements
+echo "Installing requirements..."
+pip install -r streamlit_requirements.txt
 
 # Run the Streamlit app
 echo "Starting Streamlit app..."
-streamlit run streamlit_app.py
+streamlit run streamlit_simple.py

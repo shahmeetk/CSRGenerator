@@ -2,6 +2,7 @@
   "name": "csr-generator-tool",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://shahmeetk.github.io/CSRGenerator",
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
@@ -22,7 +23,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "npm run build && cp build/index.html build/404.html"
+    "predeploy": "npm run build && cp build/index.html build/404.html",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
